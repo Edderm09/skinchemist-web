@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skinchemist</title>
+
+<style>
+
+body{
+  margin:0;
+  font-family: Arial, sans-serif;
+  background:#fff;
+  color:#111;
+}
+
+/* HEADER */
+header{
+  display:flex;
+  justify-content:space-between;
+  padding:20px;
+  border-bottom:1px solid #eee;
+  position:sticky;
+  top:0;
+  background:white;
+}
+
+nav a{
+  margin:0 10px;
+  text-decoration:none;
+  color:#000;
+}
+
+/* HERO CON IMAGEN */
+.hero{
+  height:100vh;
+  background-image:url('https://images.ctfassets.net/bcjr30vxh6td/nka13kTFlpjFvh9pDvZL1/7abf52fe4acf57beb16789beaf6748f3/what-are-peptides?fm=webp&w=3840');
+  background-size:cover;
+  background-position:center;
+  position:relative;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.overlay{
+  background:rgba(0,0,0,0.4);
+  color:white;
+  text-align:center;
+  padding:40px;
+  border-radius:10px;
+}
+
+.hero h1{
+  font-size:40px;
+}
+
+.btn{
+  padding:10px 20px;
+  border:none;
+  background:black;
+  color:white;
+  cursor:pointer;
+  margin-top:10px;
+}
+
+/* SECCIONES */
+.section{
+  padding:60px 20px;
+}
+
+/* GRID PRODUCTOS */
+.products{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:20px;
+}
+
+/* TARJETAS */
+.card{
+  border:1px solid #eee;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 2px 5px rgba(0,0,0,0.05);
+  text-align:center;
+}
+
+.card img{
+  width:100%;
+  border-radius:10px;
+  object-fit:cover;
+}
+
+/* CARRITO */
+#cart{
+  position:fixed;
+  right:0;
+  top:0;
+  background:#fff;
+  width:300px;
+  height:100%;
+  border-left:1px solid #eee;
+  padding:20px;
+  overflow:auto;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h2>SKINCHEMIST</h2>
+<nav>
+<a href="#">Inicio</a>
+<a href="#catalogo">Catálogo</a>
+<a href="#about">Marca</a>
+<a href="#cart">Carrito</a>
+</nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="overlay">
+    <h1>Perfection is a routine.</h1>
+    <p>Precisión científica para una piel sin margen de error.</p>
+    <button class="btn" onclick="scrollToCatalog()">Explorar productos</button>
+  </div>
+</section>
+
+<!-- BENEFICIOS -->
+<section class="section">
+<h2>Beneficios</h2>
+<div class="products">
+<div class="card">Fórmulas avanzadas</div>
+<div class="card">Resultados visibles</div>
+<div class="card">Pureza clínica</div>
+<div class="card">Control total</div>
+</div>
+</section>
+
+<!-- CATÁLOGO -->
+<section id="catalogo" class="section">
+<h2>Catálogo</h2>
+
+<select onchange="filterProducts(this.value)">
+<option value="all">Todos</option>
+<option value="grasa">Grasa</option>
+<option value="seca">Seca</option>
+<option value="mixta">Mixta</option>
+</select>
+
+<div class="products" id="productList"></div>
+</section>
+
+<!-- SOBRE -->
+<section id="about" class="section">
+<h2>Sobre la marca</h2>
+<p>No es cuidado. Es precisión.</p>
+<p>Tu piel refleja lo que controlas.</p>
+<p>La perfección es disciplina.</p>
+</section>
+
+<!-- CARRITO -->
+<div id="cart">
+<h3>Carrito</h3>
+<ul id="cartItems"></ul>
+<p>Total: $<span id="total">0</span></p>
+</div>
+
+<script>
+
+const products = [
+{
+  name:"Peptide Complex 10%",
+  price:20,
+  type:"seca",
+  img:"https://cosmetis.com/media/catalog/product/c/t/ct206930-theordinary_multi-peptide_copper_peptides_serum_30ml_4.jpg"
+},
+{
+  name:"Niacinamide 12%",
+  price:18,
+  type:"grasa",
+  img:"https://www.sephora.com.mx/on/demandware.static/-/Sites-masterCatalog_Sephora/es_MX/dw57a7d869/images/hi-res/boletos/ILSE%20VELASCO/The%20Ordinary/ACTUALIZACIONES/769915195682_1.jpg"
+},
+{
+  name:"Retinol 1%",
+  price:25,
+  type:"mixta",
+  img:"https://ss702.liverpool.com.mx/xl/1175051348.jpg"
+}
+];
+
+let cart = [];
+
+function displayProducts(list){
+  const container = document.getElementById("productList");
+  container.innerHTML="";
+  
+  list.forEach((p,i)=>{
+    container.innerHTML += `
+    <div class="card">
+      <img src="${p.img}">
+      <h3>${p.name}</h3>
+      <p>$${p.price}</p>
+      <button class="btn" onclick="addToCart(${i})">Agregar</button>
+    </div>`;
+  });
+}
+
+function filterProducts(type){
+  if(type==="all"){
+    displayProducts(products);
+  }else{
+    displayProducts(products.filter(p=>p.type===type));
+  }
+}
+
+function addToCart(i){
+  cart.push(products[i]);
+  updateCart();
+}
+
+function updateCart(){
+  const list = document.getElementById("cartItems");
+  list.innerHTML="";
+  let total=0;
+
+  cart.forEach(item=>{
+    list.innerHTML += `<li>${item.name} - $${item.price}</li>`;
+    total += item.price;
+  });
+
+  document.getElementById("total").innerText = total;
+}
+
+function scrollToCatalog(){
+  document.getElementById("catalogo").scrollIntoView({behavior:"smooth"});
+}
+
+displayProducts(products);
+
+</script>
+
+</body>
+</html>
